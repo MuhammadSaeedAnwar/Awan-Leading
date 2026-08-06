@@ -170,6 +170,31 @@ export default function AwanTransport() {
 
   const navigate = (p: string) => { setPage(p); setMobileMenu(false); window.scrollTo(0, 0); };
 
+  const [pendingScroll, setPendingScroll] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (page === "home" && pendingScroll) {
+      const id = pendingScroll;
+      setPendingScroll(null);
+      requestAnimationFrame(() => {
+        if (id === "home") window.scrollTo({ top: 0, behavior: "smooth" });
+        else document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }, [page, pendingScroll]);
+
+  const goToSection = (id: string) => {
+    setMobileMenu(false);
+    if (page !== "home") {
+      setPendingScroll(id);
+      setPage("home");
+    } else if (id === "home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   // Theme classes
   const bg = dark ? "bg-[#171717]" : "bg-white";
   const bgAlt = dark ? "bg-[#111D33]" : "bg-[#F8FAFC]";
@@ -188,17 +213,21 @@ export default function AwanTransport() {
     }, []);
     const scrolled = scrollY > 20;
     const navItems = [
-      { key: "home", label: t.nav.home },
-      { key: "about", label: t.nav.about },
-      { key: "services", label: t.nav.services },
-      { key: "fleet", label: t.nav.fleet },
-      { key: "track", label: t.hero.trackShipment },
-      { key: "contact", label: t.nav.contact }
+      { key: "home", label: t.nav.home, isPage: false },
+      { key: "about", label: t.nav.about, isPage: false },
+      { key: "services", label: t.nav.services, isPage: false },
+      { key: "fleet", label: t.nav.fleet, isPage: false },
+      { key: "track", label: t.hero.trackShipment, isPage: true },
+      { key: "contact", label: t.nav.contact, isPage: false }
     ];
+    const handleNavClick = (item: { key: string; isPage: boolean }) => {
+      if (item.isPage) navigate(item.key);
+      else goToSection(item.key);
+    };
     return (
       <header dir={dir} className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? `${dark ? "bg-[#171717]/95" : "bg-white/95"} backdrop-blur-xl shadow-lg` : "bg-transparent"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 sm:h-20">
-          <button onClick={() => navigate("home")} className="flex items-center gap-2 group">
+          <button onClick={() => goToSection("home")} className="flex items-center gap-2 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C8102E] to-[#DC2626] flex items-center justify-center shadow-lg">
               <Truck className="w-5 h-5 text-white" />
             </div>
@@ -209,7 +238,7 @@ export default function AwanTransport() {
           </button>
           <nav className="hidden lg:flex items-center gap-1">
             {navItems.map(item => (
-              <button key={item.key} onClick={() => navigate(item.key)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${page === item.key ? "bg-[#C8102E]/10 text-[#C8102E]" : `${scrolled || page !== "home" ? textMuted : "text-white/80"} hover:bg-white/10`}`}>
+              <button key={item.key} onClick={() => handleNavClick(item)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${page === item.key ? "bg-[#C8102E]/10 text-[#C8102E]" : `${scrolled || page !== "home" ? textMuted : "text-white/80"} hover:bg-white/10`}`}>
                 {item.label}
               </button>
             ))}
@@ -246,7 +275,7 @@ export default function AwanTransport() {
               <button onClick={() => setMobileMenu(false)} className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} ${text}`}><X className="w-5 h-5" /></button>
               <div className="mt-12 flex flex-col gap-2">
                 {navItems.map(item => (
-                  <button key={item.key} onClick={() => navigate(item.key)} className={`px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${page === item.key ? "bg-[#C8102E]/10 text-[#C8102E]" : `${text} hover:bg-gray-50`}`}>
+                  <button key={item.key} onClick={() => handleNavClick(item)} className={`px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${page === item.key ? "bg-[#C8102E]/10 text-[#C8102E]" : `${text} hover:bg-gray-50`}`}>
                     {item.label}
                   </button>
                 ))}
@@ -359,7 +388,7 @@ export default function AwanTransport() {
 
   // ─── HERO ──────────────────────────────────────────────────────
   const Hero = () => (
-    <section dir={dir} className="relative min-h-[100vh] flex items-center overflow-hidden">
+    <section dir={dir} id="home" className="relative min-h-[100vh] flex items-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#171717] via-[#262626] to-[#C8102E]" />
       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23DC2626' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
       <div className="absolute top-20 right-10 w-64 h-64 bg-[#DC2626]/10 rounded-full blur-3xl animate-pulse" />
@@ -382,7 +411,7 @@ export default function AwanTransport() {
               {t.hero.bookNow}
               <ArrowRight className={`w-5 h-5 group-hover:translate-x-1 transition-transform ${isRtl ? "rotate-180" : ""}`} />
             </button>
-            <button onClick={() => navigate("contact")} className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all">
+            <button onClick={() => goToSection("contact")} className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all">
               {t.hero.requestQuote}
             </button>
             <button onClick={() => navigate("track")} className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all">
@@ -450,11 +479,11 @@ export default function AwanTransport() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {servicesData.map((svc, i) => (
-            <div key={i} className={`group ${bgCard} rounded-2xl p-6 shadow-sm ${border} border hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer`}>
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#C8102E] to-[#C8102E]/70 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg shadow-[#C8102E]/20">
+            <div key={i} className={`group ${bgCard} rounded-2xl p-6 shadow-sm ${border} border hover:shadow-2xl hover:-translate-y-1.5 hover:border-[#C8102E]/40 transition-all duration-300 ease-out cursor-pointer`}>
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#C8102E] to-[#C8102E]/70 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 ease-out shadow-lg shadow-[#C8102E]/20 group-hover:shadow-[#C8102E]/40">
                 <svc.icon className="w-7 h-7 text-white" />
               </div>
-              <h3 className={`font-bold text-lg mb-2 ${text}`}>{isRtl ? svc.nameAr : svc.nameEn}</h3>
+              <h3 className={`font-bold text-lg mb-2 ${text} transition-colors duration-300 group-hover:text-[#C8102E]`}>{isRtl ? svc.nameAr : svc.nameEn}</h3>
               <p className={`text-sm ${textMuted} leading-relaxed`}>{isRtl ? svc.descAr : svc.descEn}</p>
             </div>
           ))}
@@ -465,7 +494,7 @@ export default function AwanTransport() {
 
   // ─── FLEET ─────────────────────────────────────────────────────
   const Fleet = () => (
-    <section dir={dir} className={`${bgAlt} py-20 sm:py-28`}>
+    <section dir={dir} id="fleet" className={`${bgAlt} py-20 sm:py-28`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#DC2626]/10 rounded-full text-[#DC2626] text-xs font-semibold mb-4 uppercase tracking-wider">
@@ -476,18 +505,19 @@ export default function AwanTransport() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {fleetData.map((v, i) => (
-            <div key={i} className={`${bgCard} rounded-2xl overflow-hidden shadow-sm ${border} border hover:shadow-xl transition-all group`}>
+            <div key={i} className={`${bgCard} rounded-2xl overflow-hidden shadow-sm ${border} border hover:shadow-2xl hover:-translate-y-1.5 hover:border-[#C8102E]/50 transition-all duration-300 ease-out group cursor-default`}>
               <div className="h-48 bg-gradient-to-br from-[#262626] to-[#C8102E] flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTIwIDBsMjAgMjAtMjAgMjBMMCAyMHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50" />
-                <Truck className="w-16 h-16 text-white/20 group-hover:scale-110 transition-transform" />
-                <div className={`absolute top-4 ${isRtl ? "left-4" : "right-4"}`}>
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTIwIDBsMjAgMjAtMjAgMjBMMCAyMHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <Truck className="w-16 h-16 text-white/20 group-hover:text-white/40 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 ease-out" />
+                <div className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} transition-transform duration-300 group-hover:scale-105`}>
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${v.available ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
                     {v.available ? t.fleet.available : t.fleet.booked}
                   </span>
                 </div>
               </div>
               <div className="p-6">
-                <h3 className={`font-bold text-lg mb-3 ${text}`}>{isRtl ? v.nameAr : v.nameEn}</h3>
+                <h3 className={`font-bold text-lg mb-3 ${text} transition-colors duration-300 group-hover:text-[#C8102E]`}>{isRtl ? v.nameAr : v.nameEn}</h3>
                 <p className={`text-sm ${textMuted} mb-4`}>{isRtl ? v.descAr : v.descEn}</p>
                 <div className="flex items-center gap-4 mb-5">
                   <div className={`flex items-center gap-1.5 text-sm ${textMuted}`}>
@@ -499,7 +529,7 @@ export default function AwanTransport() {
                     {v.weight}
                   </div>
                 </div>
-                <button onClick={() => navigate("booking")} disabled={!v.available} className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${v.available ? "bg-gradient-to-r from-[#C8102E] to-[#C8102E]/80 text-white hover:shadow-lg" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>
+                <button onClick={() => navigate("booking")} disabled={!v.available} className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${v.available ? "bg-gradient-to-r from-[#C8102E] to-[#C8102E]/80 text-white hover:shadow-lg hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}>
                   {t.fleet.bookThis}
                 </button>
               </div>
@@ -668,7 +698,7 @@ export default function AwanTransport() {
 
   // ─── CONTACT ───────────────────────────────────────────────────
   const Contact = () => (
-    <section dir={dir} className={`${bg} py-20 sm:py-28`}>
+    <section dir={dir} id="contact" className={`${bg} py-20 sm:py-28`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
           <h2 className={`text-3xl sm:text-4xl font-black ${text} mb-4`}>{t.contact.title}</h2>
@@ -711,10 +741,10 @@ export default function AwanTransport() {
 
   // ─── ABOUT ─────────────────────────────────────────────────────
   const AboutPage = () => (
-    <div dir={dir} className={`${bg} pt-24`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+    <section dir={dir} id="about" className={`${bg} py-20 sm:py-28`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
-          <h1 className={`text-4xl sm:text-5xl font-black ${text} mb-4`}>{t.about.title}</h1>
+          <h2 className={`text-4xl sm:text-5xl font-black ${text} mb-4`}>{t.about.title}</h2>
           <p className={`${textMuted} max-w-2xl mx-auto`}>
             {isRtl ? "أوان للنقل، وجهتك الأولى لخدمات تأجير المعدات الثقيلة عالية الجودة في المملكة العربية السعودية" : "Your premier destination for top-notch heavy equipment rental services in Saudi Arabia"}
           </p>
@@ -774,7 +804,7 @@ export default function AwanTransport() {
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 
   // ─── BOOKING FORM ──────────────────────────────────────────────
@@ -1583,13 +1613,13 @@ export default function AwanTransport() {
             <h4 className="font-bold mb-4">{t.footer.quickLinks}</h4>
             <div className="space-y-2.5">
               {[
-                { label: t.nav.about, key: "about" },
-                { label: t.nav.services, key: "services" },
-                { label: t.nav.fleet, key: "fleet" },
-                { label: t.nav.booking, key: "booking" },
-                { label: t.nav.contact, key: "contact" }
+                { label: t.nav.about, key: "about", isPage: false },
+                { label: t.nav.services, key: "services", isPage: false },
+                { label: t.nav.fleet, key: "fleet", isPage: false },
+                { label: t.nav.booking, key: "booking", isPage: true },
+                { label: t.nav.contact, key: "contact", isPage: false }
               ].map((link, i) => (
-                <button key={i} onClick={() => navigate(link.key)} className="block text-white/50 text-sm hover:text-[#DC2626] transition-colors">
+                <button key={i} onClick={() => (link.isPage ? navigate(link.key) : goToSection(link.key))} className="block text-white/50 text-sm hover:text-[#DC2626] transition-colors">
                   {link.label}
                 </button>
               ))}
@@ -1651,11 +1681,7 @@ export default function AwanTransport() {
       <Header />
       <LoginModal />
 
-      {page === "home" && (<><Hero /><Stats /><Services /><Fleet /><RentalPlans /><Testimonials /><FAQ /><CTA /><Contact /></>)}
-      {page === "about" && <AboutPage />}
-      {page === "services" && (<div className={`${bg} pt-24`}><Services /></div>)}
-      {page === "fleet" && (<div className={`${bg} pt-24`}><Fleet /></div>)}
-      {page === "contact" && (<div className={`${bg} pt-24`}><Contact /></div>)}
+      {page === "home" && (<><Hero /><Stats /><AboutPage /><Services /><Fleet /><RentalPlans /><Testimonials /><FAQ /><CTA /><Contact /></>)}
       {page === "track" && <TrackPage />}
       {page === "booking" && <BookingPage />}
       {page === "customer-dashboard" && <CustomerDashboard />}
