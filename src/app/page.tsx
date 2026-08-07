@@ -822,18 +822,25 @@ export default function AwanTransport() {
           <div className="lg:col-span-2 space-y-6">
             {[
               { icon: MapPin, label: t.contact.address, color: "text-[#C8102E]" },
-              { icon: Phone, label: "+966 54 433 4933 | +966 50 469 1463", color: "text-[#DC2626]" },
-              { icon: Mail, label: "Awanlogistics@yahoo.com", color: "text-[#7A0C18]" },
+              { icon: Phone, label: "+966 54 433 4933 | +966 50 469 1463", color: "text-[#DC2626]", href: "tel:+966544334933" },
+              { icon: Mail, label: "Awanlogistics@yahoo.com", color: "text-[#7A0C18]", href: "mailto:Awanlogistics@yahoo.com" },
               { icon: Clock, label: t.contact.hours, color: "text-emerald-500" },
-              { icon: MessageCircle, label: "WhatsApp: +966 54 433 4933", color: "text-green-500" }
-            ].map((item, i) => (
-              <div key={i} className={`flex items-start gap-4 ${bgCard} rounded-xl p-4 ${border} border`}>
-                <div className={`w-10 h-10 rounded-xl ${dark ? "bg-white/5" : "bg-gray-50"} flex items-center justify-center flex-shrink-0`}>
-                  <item.icon className={`w-5 h-5 ${item.color}`} />
-                </div>
-                <span className={`text-sm ${text} pt-2`}>{item.label}</span>
-              </div>
-            ))}
+              { icon: MessageCircle, label: "WhatsApp: +966 54 433 4933", color: "text-green-500", href: "https://wa.me/966544334933" }
+            ].map((item, i) => {
+              const Wrapper = item.href ? "a" : "div";
+              return (
+                <Wrapper
+                  key={i}
+                  {...(item.href ? { href: item.href, target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className={`flex items-start gap-4 ${bgCard} rounded-xl p-4 ${border} border ${item.href ? "hover:border-[#C8102E]/40 transition-all cursor-pointer" : ""}`}
+                >
+                  <div className={`w-10 h-10 rounded-xl ${dark ? "bg-white/5" : "bg-gray-50"} flex items-center justify-center flex-shrink-0`}>
+                    <item.icon className={`w-5 h-5 ${item.color}`} />
+                  </div>
+                  <span className={`text-sm ${text} pt-2`}>{item.label}</span>
+                </Wrapper>
+              );
+            })}
           </div>
           <div className="lg:col-span-3">
             <div className={`${bgCard} rounded-2xl p-8 ${border} border shadow-sm`}>
@@ -1814,9 +1821,15 @@ export default function AwanTransport() {
 
       {showHeaderFooter && <Footer />}
 
-      <button className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#25D366] rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all" title="WhatsApp">
+      <a
+        href="https://wa.me/966544334933"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#25D366] rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all"
+        title="WhatsApp"
+      >
         <MessageCircle className="w-6 h-6 text-white" />
-      </button>
+      </a>
     </div>
   );
 }
