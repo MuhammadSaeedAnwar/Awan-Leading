@@ -168,6 +168,19 @@ const statusConfig: Record<string, { color: string; dot: string }> = {
 
 const bookingSteps = ["pending", "confirmed", "assigned", "dispatched", "transit", "delivered", "completed"];
 
+// ─── TOAST NOTIFICATIONS ─────────────────────────────────────────────
+// Module-level pub/sub (not React state) so triggering a toast from any
+// section — e.g. the Contact form embedded in the middle of the scrolling
+// home page — never re-renders the rest of the page or resets scroll
+// position, the same class of bug fixed for the FAQ accordion above.
+type ToastMsg = { id: number; message: string; type: "success" | "error" };
+let toastListeners: Array<(msg: ToastMsg) => void> = [];
+let toastIdCounter = 0;
+function showToast(message: string, type: "success" | "error" = "success") {
+  const msg: ToastMsg = { id: ++toastIdCounter, message, type };
+  toastListeners.forEach((fn) => fn(msg));
+}
+
 // ─── MAIN APP ──────────────────────────────────────────────────────
 export default function AwanTransport() {
   const [lang, setLang] = useState<"en" | "ar">("en");
@@ -324,6 +337,36 @@ export default function AwanTransport() {
     );
   };
 
+  // ─── TOAST CONTAINER ───────────────────────────────────────────
+  const ToastContainer = () => {
+    const [toasts, setToasts] = useState<ToastMsg[]>([]);
+
+    useEffect(() => {
+      const handler = (msg: ToastMsg) => {
+        setToasts((prev) => [...prev, msg]);
+        setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== msg.id)), 4000);
+      };
+      toastListeners.push(handler);
+      return () => { toastListeners = toastListeners.filter((fn) => fn !== handler); };
+    }, []);
+
+    if (toasts.length === 0) return null;
+
+    return (
+      <div dir={dir} className={`fixed top-20 ${isRtl ? "left-4" : "right-4"} z-[100] flex flex-col gap-2 max-w-sm`}>
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl text-sm font-medium text-white animate-[fadeIn_0.2s_ease-out] ${t.type === "success" ? "bg-emerald-600" : "bg-red-600"}`}
+          >
+            {t.type === "success" ? <CheckCircle2 className="w-5 h-5 flex-shrink-0" /> : <X className="w-5 h-5 flex-shrink-0" />}
+            <span>{t.message}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // ─── LOGIN MODAL ───────────────────────────────────────────────
   const LoginModal = () => {
     const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
@@ -360,6 +403,7 @@ export default function AwanTransport() {
             return;
           }
           resetAndClose();
+          showToast(isRtl ? `مرحباً ${fullName}! تم إنشاء حسابك بنجاح.` : `Welcome ${fullName}! Your account was created successfully.`, "success");
           navigate("customer-dashboard");
         } else {
           const { data, error } = await signIn(email, password);
@@ -370,6 +414,7 @@ export default function AwanTransport() {
             .eq("id", data.user.id)
             .single();
           resetAndClose();
+          showToast(isRtl ? "تم تسجيل الدخول بنجاح!" : "Signed in successfully!", "success");
           navigate(profileRow?.role === "admin" ? "admin" : "customer-dashboard");
         }
       } finally {
@@ -741,7 +786,32 @@ export default function AwanTransport() {
   };
 
   // ─── CONTACT ───────────────────────────────────────────────────
-  const Contact = () => (
+  const Contact = () => {
+    const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+    const [sending, setSending] = useState(false);
+
+    const handleSend = async () => {
+      if (!form.name || !form.email || !form.message) {
+        showToast(isRtl ? "يرجى تعبئة الاسم والبريد الإلكتروني والرسالة" : "Please fill in name, email, and message", "error");
+        return;
+      }
+      setSending(true);
+      const { error } = await supabase.from("contact_messages").insert({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || null,
+        message: form.message,
+      });
+      setSending(false);
+      if (error) {
+        showToast(isRtl ? "تعذر إرسال رسالتك. حاول مرة أخرى." : "Couldn't send your message. Please try again.", "error");
+        return;
+      }
+      showToast(isRtl ? "تم إرسال رسالتك بنجاح! سنتواصل معك قريباً." : "Message sent! We'll get back to you soon.", "success");
+      setForm({ name: "", email: "", phone: "", message: "" });
+    };
+
+    return (
     <section dir={dir} id="contact" className={`${bg} py-20 sm:py-28`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
@@ -768,20 +838,21 @@ export default function AwanTransport() {
           <div className="lg:col-span-3">
             <div className={`${bgCard} rounded-2xl p-8 ${border} border shadow-sm`}>
               <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                <input placeholder={t.contact.name} className={`px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30`} />
-                <input placeholder={t.contact.email} className={`px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30`} />
+                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t.contact.name} className={`px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30`} />
+                <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} type="email" placeholder={t.contact.email} className={`px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30`} />
               </div>
-              <input placeholder={t.contact.phone} className={`w-full px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30 mb-4`} />
-              <textarea rows={5} placeholder={t.contact.message} className={`w-full px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30 resize-none mb-4`} />
-              <button className="w-full py-3.5 bg-gradient-to-r from-[#C8102E] to-[#C8102E]/80 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                <Send className="w-4 h-4" /> {t.contact.send}
+              <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} type="tel" placeholder={t.contact.phone} className={`w-full px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30 mb-4`} />
+              <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} rows={5} placeholder={t.contact.message} className={`w-full px-4 py-3 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30 resize-none mb-4`} />
+              <button onClick={handleSend} disabled={sending} className="w-full py-3.5 bg-gradient-to-r from-[#C8102E] to-[#C8102E]/80 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                <Send className="w-4 h-4" /> {sending ? (isRtl ? "جارٍ الإرسال..." : "Sending...") : t.contact.send}
               </button>
             </div>
           </div>
         </div>
       </div>
     </section>
-  );
+    );
+  };
 
   // ─── ABOUT ─────────────────────────────────────────────────────
   const AboutPage = () => (
@@ -904,7 +975,11 @@ export default function AwanTransport() {
           rental_duration: form.rentalDuration,
           notes: form.notes || null,
         });
-        if (error) { setSubmitError(error.message); return; }
+        if (error) {
+          setSubmitError(error.message);
+          showToast(isRtl ? "تعذر إرسال الحجز. حاول مرة أخرى." : "Couldn't submit your booking. Please try again.", "error");
+          return;
+        }
         setConfirmedBookingNumber(bookingNumber);
         setBookingSuccess(true);
       } finally {
@@ -1262,9 +1337,17 @@ export default function AwanTransport() {
 
     useEffect(() => { loadBookings(); }, []);
 
-    const updateStatus = async (id: string, status: BookingRow["status"]) => {
-      await supabase.from("bookings").update({ status }).eq("id", id);
+    const updateStatus = async (id: string, status: BookingRow["status"], bookingNumber: string) => {
+      const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+      if (error) {
+        showToast(isRtl ? "فشل تحديث الحالة" : "Failed to update status", "error");
+        return;
+      }
       setBookings(prev => prev.map(b => (b.id === id ? { ...b, status } : b)));
+      showToast(
+        isRtl ? `تم تحديث ${bookingNumber} إلى ${t.status[status as keyof typeof t.status]}` : `${bookingNumber} updated to ${t.status[status as keyof typeof t.status]}`,
+        "success"
+      );
     };
 
     const filteredBookings = bookings.filter(b => {
@@ -1460,7 +1543,7 @@ export default function AwanTransport() {
                         <div className="flex items-center gap-3">
                           <select
                             value={bk.status}
-                            onChange={e => updateStatus(bk.id, e.target.value as BookingRow["status"])}
+                            onChange={e => updateStatus(bk.id, e.target.value as BookingRow["status"], bk.booking_number)}
                             className={`px-3 py-1.5 rounded-full text-xs font-bold border outline-none ${statusConfig[bk.status]?.color} ${border}`}
                           >
                             {bookingSteps.concat("cancelled").map(s => (
@@ -1720,6 +1803,7 @@ export default function AwanTransport() {
       `}</style>
       <Header />
       <LoginModal />
+      <ToastContainer />
 
       {page === "home" && (<><Hero /><Stats /><AboutPage /><Services /><Fleet /><RentalPlans /><Testimonials /><FAQ /><CTA /><Contact /></>)}
       {page === "track" && <TrackPage />}
