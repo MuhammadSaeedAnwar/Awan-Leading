@@ -75,7 +75,21 @@ const rentalPlansData = [
 ];
 
 // ─── DATA ──────────────────────────────────────────────────────────
-const WIKIMEDIA = (file: string) => `https://commons.wikimedia.org/wiki/Special:FilePath/${file}?width=800`;
+// Local copies (downloaded from Wikimedia Commons, see public/images/equipment)
+// avoid depending on live hotlinking, which Wikimedia rate-limits aggressively.
+const EQUIPMENT_IMAGES: Record<string, string> = {
+  "Mobile_crane.jpg": "/images/equipment/mobile-crane.jpg",
+  "Forklift-Truck.jpg": "/images/equipment/forklift.jpg",
+  "Cumminspower.jpg": "/images/equipment/diesel-generator.jpg",
+  "Truck-mounted_crane.jpg": "/images/equipment/boom-truck.jpg",
+  "Talbert_Lowboy_Trailer.jpg": "/images/equipment/lowbed-trailer.jpg",
+  "Swift_flatbed_colorado.JPG": "/images/equipment/flatbed-trailer.jpg",
+  "Scissor_Lift_Aerial_Work_Platform.JPG": "/images/equipment/scissor-lift.jpg",
+  "Straight_Boom_Lift_with_telescopic_boom_extended.jpg": "/images/equipment/man-lift.jpg",
+  "Liebherr_314_excavator.JPG": "/images/equipment/excavator.jpg",
+  "Manitou_telehandler_in_2013.JPG": "/images/equipment/telehandler.jpg",
+};
+const WIKIMEDIA = (file: string) => EQUIPMENT_IMAGES[file] ?? "";
 
 const servicesData = [
   { icon: Weight, image: WIKIMEDIA("Mobile_crane.jpg"), nameEn: "Crane Rental", nameAr: "تأجير الرافعات", descEn: "Specialized crane operations from 20 to 500 tons, ensuring safe and efficient lifting for diverse projects.", descAr: "عمليات رفع متخصصة من 20 إلى 500 طن، تضمن حلول رفع آمنة وفعالة لمشاريع متنوعة." },
