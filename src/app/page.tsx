@@ -174,7 +174,6 @@ export default function AwanTransport() {
   const [dark, setDark] = useState(false);
   const [page, setPage] = useState("home");
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [confirmedBookingNumber, setConfirmedBookingNumber] = useState<string | null>(null);
   const [adminTab, setAdminTab] = useState("dashboard");
@@ -638,7 +637,9 @@ export default function AwanTransport() {
   );
 
   // ─── FAQ ───────────────────────────────────────────────────────
-  const FAQ = () => (
+  const FAQ = () => {
+    const [openFaq, setOpenFaq] = useState<number | null>(null);
+    return (
     <section dir={dir} className={`${bgAlt} py-20 sm:py-28`}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
@@ -660,7 +661,8 @@ export default function AwanTransport() {
         </div>
       </div>
     </section>
-  );
+    );
+  };
 
   // ─── CTA ───────────────────────────────────────────────────────
   const CTA = () => (
@@ -674,7 +676,7 @@ export default function AwanTransport() {
           <button onClick={() => navigate("booking")} className="px-10 py-4 bg-gradient-to-r from-[#DC2626] to-[#7A0C18] text-white rounded-xl font-bold text-lg shadow-2xl shadow-[#DC2626]/30 hover:scale-[1.02] transition-all">
             {t.hero.bookNow}
           </button>
-          <button className="px-10 py-4 bg-white/10 text-white rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all">
+          <button onClick={() => goToSection("contact")} className="px-10 py-4 bg-white/10 text-white rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all">
             {t.cta.getQuote}
           </button>
         </div>
