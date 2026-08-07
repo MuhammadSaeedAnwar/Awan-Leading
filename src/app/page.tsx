@@ -5,17 +5,26 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type { Database } from "@/lib/supabase/types";
 import {
-  Truck, Package, MapPin, Phone, Mail, Clock, Star, ChevronRight, ChevronLeft,
-  ChevronDown, Menu, X, Globe, Moon, Sun, Search, Bell, User, Settings,
-  BarChart3, FileText, Users, Shield, LogOut, Calendar, ArrowRight,
-  Check, Warehouse, Building2, Zap, Route, Container, Weight,
-  MessageCircle, Send, Upload, Download, Filter, MoreVertical, Eye,
-  TrendingUp, DollarSign, Activity, CheckCircle2,
-  Boxes, Wrench, CreditCard, Receipt, ClipboardList, Headphones,
-  Facebook, Twitter, Instagram, Linkedin, Navigation, Timer,
-  Plus, Edit, Award, Target, Heart,
-  Camera, Car
-} from "lucide-react";
+  FaTruck as Truck, FaBox as Package, FaLocationDot as MapPin, FaPhone as Phone,
+  FaEnvelope as Mail, FaClock as Clock, FaStar as Star, FaChevronRight as ChevronRight,
+  FaChevronLeft as ChevronLeft, FaChevronDown as ChevronDown, FaBars as Menu,
+  FaXmark as X, FaGlobe as Globe, FaMoon as Moon, FaSun as Sun,
+  FaMagnifyingGlass as Search, FaBell as Bell, FaUser as User, FaGear as Settings,
+  FaChartColumn as BarChart3, FaFileLines as FileText, FaUsers as Users,
+  FaShieldHalved as Shield, FaRightFromBracket as LogOut, FaCalendarDays as Calendar,
+  FaArrowRight as ArrowRight, FaCheck as Check, FaWarehouse as Warehouse,
+  FaBuilding as Building2, FaBolt as Zap, FaRoute as Route,
+  FaBoxesStacked as Container, FaWeightHanging as Weight,
+  FaCommentDots as MessageCircle, FaPaperPlane as Send, FaDownload as Download,
+  FaFilter as Filter, FaEllipsisVertical as MoreVertical, FaEye as Eye,
+  FaArrowTrendUp as TrendingUp, FaChartLine as Activity, FaCircleCheck as CheckCircle2,
+  FaBoxOpen as Boxes, FaWrench as Wrench, FaCreditCard as CreditCard,
+  FaReceipt as Receipt, FaClipboardList as ClipboardList, FaHeadset as Headphones,
+  FaFacebook as Facebook, FaXTwitter as Twitter, FaInstagram as Instagram,
+  FaLinkedin as Linkedin, FaLocationArrow as Navigation, FaStopwatch as Timer,
+  FaPlus as Plus, FaPenToSquare as Edit, FaAward as Award, FaBullseye as Target,
+  FaHeart as Heart, FaCamera as Camera, FaCar as Car
+} from "react-icons/fa6";
 import {
   AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -66,28 +75,30 @@ const rentalPlansData = [
 ];
 
 // ─── DATA ──────────────────────────────────────────────────────────
+const WIKIMEDIA = (file: string) => `https://commons.wikimedia.org/wiki/Special:FilePath/${file}?width=800`;
+
 const servicesData = [
-  { icon: Weight, nameEn: "Crane Rental", nameAr: "تأجير الرافعات", descEn: "Specialized crane operations from 20 to 500 tons, ensuring safe and efficient lifting for diverse projects.", descAr: "عمليات رفع متخصصة من 20 إلى 500 طن، تضمن حلول رفع آمنة وفعالة لمشاريع متنوعة." },
-  { icon: Package, nameEn: "Forklift Rental", nameAr: "تأجير الرافعات الشوكية", descEn: "Efficient material handling with forklift capacities from 2 to 25 tons for seamless logistics on site.", descAr: "مناولة فعالة للمواد برافعات شوكية بسعة من 2 إلى 25 طن لخدمات لوجستية سلسة في الموقع." },
-  { icon: Zap, nameEn: "Generator Rental", nameAr: "تأجير المولدات", descEn: "Reliable power generation from 50 kVA to 1000 kVA for construction sites, facilities, and events.", descAr: "توليد طاقة موثوق من 50 إلى 1000 كيلوفولت أمبير لمواقع البناء والمرافق والفعاليات." },
-  { icon: Truck, nameEn: "Boom Truck Rental", nameAr: "تأجير الشاحنات الرافعة", descEn: "Truck-mounted cranes from 3 to 15 tons for versatile lifting and loading on tight sites.", descAr: "رافعات مثبتة على شاحنات من 3 إلى 15 طن لعمليات رفع وتحميل مرنة في المواقع الضيقة." },
-  { icon: Container, nameEn: "Lowbed Transport", nameAr: "نقل بمقطورات منخفضة", descEn: "Normal and hydraulic lowbed trailers specialized for oversized and extra-heavy machinery.", descAr: "مقطورات منخفضة عادية وهيدروليكية متخصصة للآلات الكبيرة والثقيلة جداً." },
-  { icon: Route, nameEn: "Flatbed Trailers", nameAr: "مقطورات مسطحة", descEn: "Flatbed trailers from 12 to 24 meters for long cargo, pipes, and structural steel.", descAr: "مقطورات مسطحة من 12 إلى 24 متر للبضائع الطويلة والأنابيب والحديد الإنشائي." },
-  { icon: TrendingUp, nameEn: "Access & Lift Rental", nameAr: "تأجير معدات الوصول والرفع", descEn: "Scissor lifts (8-18m) and man lifts (12-47m) for safe elevated access on any project.", descAr: "رافعات مقصية (8-18م) ورافعات بشرية (12-47م) للوصول الآمن للأماكن المرتفعة." },
-  { icon: Wrench, nameEn: "Excavation & Telehandlers", nameAr: "الحفر والرافعات الشوكية الطويلة", descEn: "Excavators and telehandler booms for earthmoving and flexible material placement.", descAr: "حفارات ورافعات شوكية طويلة لأعمال الحفر ووضع المواد بمرونة." }
+  { icon: Weight, image: WIKIMEDIA("Mobile_crane.jpg"), nameEn: "Crane Rental", nameAr: "تأجير الرافعات", descEn: "Specialized crane operations from 20 to 500 tons, ensuring safe and efficient lifting for diverse projects.", descAr: "عمليات رفع متخصصة من 20 إلى 500 طن، تضمن حلول رفع آمنة وفعالة لمشاريع متنوعة." },
+  { icon: Package, image: WIKIMEDIA("Forklift-Truck.jpg"), nameEn: "Forklift Rental", nameAr: "تأجير الرافعات الشوكية", descEn: "Efficient material handling with forklift capacities from 2 to 25 tons for seamless logistics on site.", descAr: "مناولة فعالة للمواد برافعات شوكية بسعة من 2 إلى 25 طن لخدمات لوجستية سلسة في الموقع." },
+  { icon: Zap, image: WIKIMEDIA("Cumminspower.jpg"), nameEn: "Generator Rental", nameAr: "تأجير المولدات", descEn: "Reliable power generation from 50 kVA to 1000 kVA for construction sites, facilities, and events.", descAr: "توليد طاقة موثوق من 50 إلى 1000 كيلوفولت أمبير لمواقع البناء والمرافق والفعاليات." },
+  { icon: Truck, image: WIKIMEDIA("Truck-mounted_crane.jpg"), nameEn: "Boom Truck Rental", nameAr: "تأجير الشاحنات الرافعة", descEn: "Truck-mounted cranes from 3 to 15 tons for versatile lifting and loading on tight sites.", descAr: "رافعات مثبتة على شاحنات من 3 إلى 15 طن لعمليات رفع وتحميل مرنة في المواقع الضيقة." },
+  { icon: Container, image: WIKIMEDIA("Talbert_Lowboy_Trailer.jpg"), nameEn: "Lowbed Transport", nameAr: "نقل بمقطورات منخفضة", descEn: "Normal and hydraulic lowbed trailers specialized for oversized and extra-heavy machinery.", descAr: "مقطورات منخفضة عادية وهيدروليكية متخصصة للآلات الكبيرة والثقيلة جداً." },
+  { icon: Route, image: WIKIMEDIA("Swift_flatbed_colorado.JPG"), nameEn: "Flatbed Trailers", nameAr: "مقطورات مسطحة", descEn: "Flatbed trailers from 12 to 24 meters for long cargo, pipes, and structural steel.", descAr: "مقطورات مسطحة من 12 إلى 24 متر للبضائع الطويلة والأنابيب والحديد الإنشائي." },
+  { icon: TrendingUp, image: WIKIMEDIA("Straight_Boom_Lift_with_telescopic_boom_extended.jpg"), nameEn: "Access & Lift Rental", nameAr: "تأجير معدات الوصول والرفع", descEn: "Scissor lifts (8-18m) and man lifts (12-47m) for safe elevated access on any project.", descAr: "رافعات مقصية (8-18م) ورافعات بشرية (12-47م) للوصول الآمن للأماكن المرتفعة." },
+  { icon: Wrench, image: WIKIMEDIA("Liebherr_314_excavator.JPG"), nameEn: "Excavation & Telehandlers", nameAr: "الحفر والرافعات الشوكية الطويلة", descEn: "Excavators and telehandler booms for earthmoving and flexible material placement.", descAr: "حفارات ورافعات شوكية طويلة لأعمال الحفر ووضع المواد بمرونة." }
 ];
 
 const fleetData = [
-  { nameEn: "Mobile Crane", nameAr: "رافعة متحركة", capacity: "20 - 500 Tons", weight: "Full Range Fleet", available: true, descEn: "Precise crane operations for heavy lifting on construction and industrial projects.", descAr: "عمليات رفع دقيقة للرفع الثقيل في مشاريع البناء والصناعة." },
-  { nameEn: "Forklift", nameAr: "رافعة شوكية", capacity: "2 - 25 Tons", weight: "Diesel & Electric", available: true, descEn: "Efficient material handling solutions for seamless logistics within your workspace.", descAr: "حلول مناولة فعالة للمواد لخدمات لوجستية سلسة في مكان العمل." },
-  { nameEn: "Diesel Generator", nameAr: "مولد ديزل", capacity: "50 - 1000 kVA", weight: "Silent & Standard", available: true, descEn: "Reliable power backup for construction sites, facilities, and events.", descAr: "طاقة احتياطية موثوقة لمواقع البناء والمرافق والفعاليات." },
-  { nameEn: "Boom Truck", nameAr: "شاحنة رافعة", capacity: "3 - 15 Tons", weight: "Truck-Mounted Crane", available: true, descEn: "Versatile lifting and loading equipment for tight and busy sites.", descAr: "معدات رفع وتحميل متعددة الاستخدامات للمواقع الضيقة والمزدحمة." },
-  { nameEn: "Lowbed Trailer", nameAr: "مقطورة منخفضة", capacity: "Normal & Hydraulic", weight: "Heavy Machinery Transport", available: false, descEn: "Specialized transport for oversized and extra-heavy machinery.", descAr: "نقل متخصص للآلات الكبيرة والثقيلة جداً." },
-  { nameEn: "Flatbed Trailer", nameAr: "مقطورة مسطحة", capacity: "12 - 24 Meters", weight: "Multiple Configurations", available: true, descEn: "For long cargo, pipes, and structural steel across the Kingdom.", descAr: "للبضائع الطويلة والأنابيب والحديد الإنشائي في جميع أنحاء المملكة." },
-  { nameEn: "Scissor Lift", nameAr: "رافعة مقصية", capacity: "8 - 18 Meters", weight: "Indoor & Outdoor", available: true, descEn: "Safe elevated access for maintenance and installation work.", descAr: "وصول آمن للأماكن المرتفعة لأعمال الصيانة والتركيب." },
-  { nameEn: "Man Lift / Boom Lift", nameAr: "رافعة بشرية", capacity: "12 - 47 Meters", weight: "Articulating & Telescopic", available: true, descEn: "Extended reach for high-access construction and inspection work.", descAr: "مدى وصول ممتد لأعمال البناء والفحص في المرتفعات." },
-  { nameEn: "Excavator", nameAr: "حفارة", capacity: "Multiple Sizes", weight: "Tracked & Wheeled", available: true, descEn: "Earthmoving and excavation equipment for any project scale.", descAr: "معدات حفر ونقل تراب لمشاريع بجميع الأحجام." },
-  { nameEn: "Telehandler Boom", nameAr: "رافعة شوكية طويلة", capacity: "Multiple Capacities", weight: "All-Terrain", available: true, descEn: "Flexible lifting and placement on rough and uneven terrain.", descAr: "رفع ووضع مرن على التضاريس الوعرة وغير المستوية." }
+  { image: WIKIMEDIA("Mobile_crane.jpg"), nameEn: "Mobile Crane", nameAr: "رافعة متحركة", capacity: "20 - 500 Tons", weight: "Full Range Fleet", available: true, descEn: "Precise crane operations for heavy lifting on construction and industrial projects.", descAr: "عمليات رفع دقيقة للرفع الثقيل في مشاريع البناء والصناعة." },
+  { image: WIKIMEDIA("Forklift-Truck.jpg"), nameEn: "Forklift", nameAr: "رافعة شوكية", capacity: "2 - 25 Tons", weight: "Diesel & Electric", available: true, descEn: "Efficient material handling solutions for seamless logistics within your workspace.", descAr: "حلول مناولة فعالة للمواد لخدمات لوجستية سلسة في مكان العمل." },
+  { image: WIKIMEDIA("Cumminspower.jpg"), nameEn: "Diesel Generator", nameAr: "مولد ديزل", capacity: "50 - 1000 kVA", weight: "Silent & Standard", available: true, descEn: "Reliable power backup for construction sites, facilities, and events.", descAr: "طاقة احتياطية موثوقة لمواقع البناء والمرافق والفعاليات." },
+  { image: WIKIMEDIA("Truck-mounted_crane.jpg"), nameEn: "Boom Truck", nameAr: "شاحنة رافعة", capacity: "3 - 15 Tons", weight: "Truck-Mounted Crane", available: true, descEn: "Versatile lifting and loading equipment for tight and busy sites.", descAr: "معدات رفع وتحميل متعددة الاستخدامات للمواقع الضيقة والمزدحمة." },
+  { image: WIKIMEDIA("Talbert_Lowboy_Trailer.jpg"), nameEn: "Lowbed Trailer", nameAr: "مقطورة منخفضة", capacity: "Normal & Hydraulic", weight: "Heavy Machinery Transport", available: false, descEn: "Specialized transport for oversized and extra-heavy machinery.", descAr: "نقل متخصص للآلات الكبيرة والثقيلة جداً." },
+  { image: WIKIMEDIA("Swift_flatbed_colorado.JPG"), nameEn: "Flatbed Trailer", nameAr: "مقطورة مسطحة", capacity: "12 - 24 Meters", weight: "Multiple Configurations", available: true, descEn: "For long cargo, pipes, and structural steel across the Kingdom.", descAr: "للبضائع الطويلة والأنابيب والحديد الإنشائي في جميع أنحاء المملكة." },
+  { image: WIKIMEDIA("Scissor_Lift_Aerial_Work_Platform.JPG"), nameEn: "Scissor Lift", nameAr: "رافعة مقصية", capacity: "8 - 18 Meters", weight: "Indoor & Outdoor", available: true, descEn: "Safe elevated access for maintenance and installation work.", descAr: "وصول آمن للأماكن المرتفعة لأعمال الصيانة والتركيب." },
+  { image: WIKIMEDIA("Straight_Boom_Lift_with_telescopic_boom_extended.jpg"), nameEn: "Man Lift / Boom Lift", nameAr: "رافعة بشرية", capacity: "12 - 47 Meters", weight: "Articulating & Telescopic", available: true, descEn: "Extended reach for high-access construction and inspection work.", descAr: "مدى وصول ممتد لأعمال البناء والفحص في المرتفعات." },
+  { image: WIKIMEDIA("Liebherr_314_excavator.JPG"), nameEn: "Excavator", nameAr: "حفارة", capacity: "Multiple Sizes", weight: "Tracked & Wheeled", available: true, descEn: "Earthmoving and excavation equipment for any project scale.", descAr: "معدات حفر ونقل تراب لمشاريع بجميع الأحجام." },
+  { image: WIKIMEDIA("Manitou_telehandler_in_2013.JPG"), nameEn: "Telehandler Boom", nameAr: "رافعة شوكية طويلة", capacity: "Multiple Capacities", weight: "All-Terrain", available: true, descEn: "Flexible lifting and placement on rough and uneven terrain.", descAr: "رفع ووضع مرن على التضاريس الوعرة وغير المستوية." }
 ];
 
 const testimonialsData = [
@@ -479,12 +490,24 @@ export default function AwanTransport() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {servicesData.map((svc, i) => (
-            <div key={i} className={`group ${bgCard} rounded-2xl p-6 shadow-sm ${border} border hover:shadow-2xl hover:-translate-y-1.5 hover:border-[#C8102E]/40 transition-all duration-300 ease-out cursor-pointer`}>
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#C8102E] to-[#C8102E]/70 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 ease-out shadow-lg shadow-[#C8102E]/20 group-hover:shadow-[#C8102E]/40">
-                <svc.icon className="w-7 h-7 text-white" />
+            <div key={i} className={`group ${bgCard} rounded-2xl overflow-hidden shadow-sm ${border} border hover:shadow-2xl hover:-translate-y-1.5 hover:border-[#C8102E]/40 transition-all duration-300 ease-out cursor-pointer`}>
+              <div className="h-36 relative overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={svc.image}
+                  alt={isRtl ? svc.nameAr : svc.nameEn}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               </div>
-              <h3 className={`font-bold text-lg mb-2 ${text} transition-colors duration-300 group-hover:text-[#C8102E]`}>{isRtl ? svc.nameAr : svc.nameEn}</h3>
-              <p className={`text-sm ${textMuted} leading-relaxed`}>{isRtl ? svc.descAr : svc.descEn}</p>
+              <div className="px-6 pb-6">
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br from-[#C8102E] to-[#C8102E]/70 flex items-center justify-center -mt-7 mb-4 relative z-10 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 ease-out shadow-lg shadow-[#C8102E]/30 ring-4 ${dark ? "ring-[#262626]" : "ring-white"}`}>
+                  <svc.icon className="w-7 h-7 text-white" />
+                </div>
+                <h3 className={`font-bold text-lg mb-2 ${text} transition-colors duration-300 group-hover:text-[#C8102E]`}>{isRtl ? svc.nameAr : svc.nameEn}</h3>
+                <p className={`text-sm ${textMuted} leading-relaxed`}>{isRtl ? svc.descAr : svc.descEn}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -506,12 +529,17 @@ export default function AwanTransport() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {fleetData.map((v, i) => (
             <div key={i} className={`${bgCard} rounded-2xl overflow-hidden shadow-sm ${border} border hover:shadow-2xl hover:-translate-y-1.5 hover:border-[#C8102E]/50 transition-all duration-300 ease-out group cursor-default`}>
-              <div className="h-48 bg-gradient-to-br from-[#262626] to-[#C8102E] flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTIwIDBsMjAgMjAtMjAgMjBMMCAyMHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <Truck className="w-16 h-16 text-white/20 group-hover:text-white/40 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 ease-out" />
+              <div className="h-48 bg-[#262626] relative overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={v.image}
+                  alt={isRtl ? v.nameAr : v.nameEn}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                 <div className={`absolute top-4 ${isRtl ? "left-4" : "right-4"} transition-transform duration-300 group-hover:scale-105`}>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${v.available ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${v.available ? "bg-emerald-500/90 text-white" : "bg-red-500/90 text-white"}`}>
                     {v.available ? t.fleet.available : t.fleet.booked}
                   </span>
                 </div>
@@ -951,10 +979,6 @@ export default function AwanTransport() {
                     </div>
                   </div>
                   <textarea value={form.notes} onChange={update("notes")} rows={3} placeholder={t.booking.instructions} className={`w-full px-4 py-3.5 rounded-xl ${dark ? "bg-[#171717] border-[#404040]" : "bg-gray-50 border-gray-200"} border text-sm ${text} outline-none focus:ring-2 focus:ring-[#C8102E]/30 resize-none`} />
-                  <div className={`border-2 border-dashed ${border} rounded-xl p-8 text-center cursor-pointer hover:border-[#C8102E]/30 transition-all`}>
-                    <Upload className={`w-8 h-8 ${textMuted} mx-auto mb-2`} />
-                    <span className={`text-sm ${textMuted}`}>{t.booking.attachments}</span>
-                  </div>
                   {submitError && <p className="text-sm text-red-500">{submitError}</p>}
                 </div>
               )}
